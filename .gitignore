@@ -1,0 +1,10 @@
+target/
+.idea/
+.classpath
+.sts4-cache/
+bin/
+Log/
+Dump/
+test/
+.DS_Store
+~*
