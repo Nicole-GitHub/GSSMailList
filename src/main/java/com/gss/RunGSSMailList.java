@@ -125,9 +125,11 @@ public class RunGSSMailList {
 			 * 		已標記, 高優先順序, 已讀, NHIA 林志忠, 有附件, FW: 需求單  PA111050018 , 751 KB, 22/5/5 四, 下午 2:02
 			 * 		高優先順序, 已讀, NHIA 林志忠, 有附件, FW: 需求單  PA111050018 , 751 KB, 22/5/5 四, 下午 2:02
 			 * 		已標記, 已回覆, Nicole Tsou (鄒文瑩), 有附件, Re: 請協助將加密程式放置正式機上_請協助通知文境至測試機測試加密功能, 288 KB, 22/5/14 六, 下午 5:29
+			 * 		已讀, 張孫瑋, RE: 74.28重啟後問題, 46 KB, 22/5/18 三, 上午 8:53
 			 * (0 問題單)
 			 * 		已回覆, NHIA 林志忠, 有附件, FW: 請評估工時, 收件匣/1 NHIA/0 問題單, 252 KB, 22/4/27 三, 下午 1:37
 			 * 		已讀, NHIA 林志忠, RE: 請評估工時_新收載QP6E_FST_TRACK_DATA、QP6E_FST_DATA, 收件匣/1 NHIA/0 問題單, 26 KB, 22/4/27 三, 上午 10:31
+			 * 		已標記, 高優先順序, 已讀, NHIA 林志忠, 有附件, FW: 應用系統需求單(單號:NA110110153) , 收件匣/1 NHIA/0 問題單, 118 KB, 22/1/13 四, 上午 7:57
 			 * 
 			 * mailTitleArr 最後一個逗號有時會多空隔有時不會，因此先將空格移除再做split 
 			 * 0: 已讀
@@ -163,25 +165,20 @@ public class RunGSSMailList {
 									Tools.getString2Date(mailDate.substring(0, mailDate.length() - 1), "yy/M/d"),
 									"yyyyMMdd");
 			// mail主旨
-//			mailTitleArrLen = 0;
 			mailTitle = "";
 			sender = "";
-			for (int i = 1; i < arrLen; i++) {
+			for (int i = 1; i <= arrLen; i++) {
 				if (mailTitleArr[arrLen - i].equals("收件匣/1 NHIA/0 問題單")) {
 					mailTitle = mailTitleArr[arrLen - i - 1];
-//					mailTitleArrLen = arrLen - i - 1;
-//					break;
+				}
+				if (mailTitleArr[arrLen - i].equals("有附件")) {
+					mailTitle = mailTitleArr[arrLen - i + 1];
 				}
 				if (readStatus.contains(mailTitleArr[arrLen - i])) {
 					sender = mailTitleArr[arrLen - i + 1];
-//					mailTitleArrLen = arrLen - i - 1;
-//					break;
+					mailTitle = mailTitle.length() > 0 ? mailTitle : mailTitleArr[arrLen - i + 2];
 				}
-				if(sender.length() > 0 && mailTitle.length() > 0)
-					break;
 			}
-//			mailTitle = mailTitleArr[mailTitleArrLen];
-//			sender = mailTitleArr[1];
 
 			map = new HashMap<String, String>();
 			map.put("MailDate", mailDate);
