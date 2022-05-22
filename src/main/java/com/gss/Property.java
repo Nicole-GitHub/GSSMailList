@@ -12,8 +12,10 @@ public class Property {
 		Map<String, String> map = new HashMap<String, String>();
 		Properties prop = new Properties();
 
+		path = System.getProperty("os.name").contains("Mac") ? "/Users/nicole/22/" : "D:/"; 
+		
 //		try (FileInputStream fis = new FileInputStream(path + "config.properties")) {
-		try (FileInputStream fis = new FileInputStream("D:/GitHub/GSSMailList/src/main/resources/config.properties")) {
+		try (FileInputStream fis = new FileInputStream(path + "GitHub/GSSMailList/src/main/resources/config.properties")) {
 			
 
 			// 加載屬性

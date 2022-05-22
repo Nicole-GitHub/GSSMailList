@@ -56,10 +56,18 @@ public class Selenium_Crawler {
 		if(dd < 15) {
 			chkDate.add(Calendar.MONTH, -1);
 		}
+		/**
+		 *  設定為上月最後一個工作天的日期
+		 *  set DATE -1 : 設為上月最後一個工作天
+		 *  set DATE 1 : 設為當月1號
+		 *  add DATE -1 : 日期 - 1
+		 *  add DATE 1 : 日期 + 1
+		 */
+		chkDate.set(Calendar.DATE,-1);
 		
 		String[] calArr = new String[chkMailDateLen];
 		for (int i = 0; i < chkMailDateLen; i++) {
-			calArr[i] = Tools.getCalendar2String(chkDate, "yy/M") + "/1";
+			calArr[i] = Tools.getCalendar2String(chkDate, "yy/M/d");
 			chkDate.add(Calendar.DATE, -1);
 		}
 		
@@ -105,8 +113,6 @@ public class Selenium_Crawler {
 				 * 內容加載後截取信件list區塊 再拆分為主旨、內容兩部份放入map中
 				 */
 				if (scrollDown(calArr, chkMailDateLen)) {
-//					element = driver.findElement(By.id("zl__TV-main__rows"));
-//					html = new Html(element.getAttribute("outerHTML"));
 					listElement = driver.findElements(By.className("Row"));
 
 					for (WebElement em : listElement) {
@@ -141,11 +147,11 @@ public class Selenium_Crawler {
 				boolean dateisBlank = true;
 				
 				while ("go".equals(scroll)) {
-					// 最少要滾到檢查日期的前兩天
+					// 最少要滾到檢查日期的前chkMailDateLen天
 					for (int calArrLen = 1; calArrLen < chkMailDateLen; calArrLen++) {
 						dateisBlank = StringUtil
 								.isBlank(html.xpath("//li[contains(@aria-label,', " + calArr[calArrLen] + "')]").get());
-						// 若已滾到檢查日期的前兩天前則可停止
+						// 若已滾到檢查日期的前chkMailDateLen天則可停止
 						if (!dateisBlank)
 							break;
 					}

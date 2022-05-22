@@ -8,16 +8,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -33,13 +29,9 @@ public class RunGSSMailList {
 	protected static void run(String path, Map<String, String> mapProp) throws Exception {
 		List<Map<String, String>> list;
 
-		String MonthReportExcelCName = mapProp.get("MonthReportExcelCName");
-		String MonthReportExcelExt = mapProp.get("MonthReportExcelExt");
-		String MonthReportExcelSource = path + MonthReportExcelCName + MonthReportExcelExt;
-		System.out.println("月報Excel: " + MonthReportExcelSource);
+		String MonthReportExcel = path + mapProp.get("MonthReportExcel");
+		System.out.println("月報Excel: " + MonthReportExcel);
 		
-		String MonthReportExcelTarget = path + MonthReportExcelCName + Tools.getToDay("yyyyMMdd") + MonthReportExcelExt;
-
 		Workbook workbook = null;
 		OutputStream output = null;
 		try {
@@ -48,24 +40,22 @@ public class RunGSSMailList {
 
 			for (Map<String, String> map : list) {
 				for (Entry<String, String> ent : map.entrySet()) {
-					System.out.println(ent.getKey() + " : " + ent.getValue() + " , ");
+					System.out.print(ent.getKey() + " : " + ent.getValue() + " , ");
 				}
+				System.out.println("");
 			}
 			
-//			
-//			File f = new File(MonthReportExcelSource);
-//			workbook = Tools.getWorkbook(MonthReportExcelSource, f);
-////			Sheet sheet1 = workbook.getSheetAt(0);
-//
-//			// 寫入 "JobList" 頁籤的狀態，並整理出失敗的Job
-////			writeSheet3(workbook, list);
-//
-//			System.out.println("Done!");
-//
-//			output = new FileOutputStream(f);
-//			workbook.write(output);
-//
-//			f.renameTo(new File(MonthReportExcelTarget)); //改名
+			
+			File f = new File(MonthReportExcel);
+			workbook = Tools.getWorkbook(MonthReportExcel, f);
+
+			write(workbook, list);
+
+			System.out.println("Done!");
+
+			output = new FileOutputStream(f);
+			workbook.write(output);
+
 		} catch (Exception ex) {
 			if (ex.getMessage().contains("Current browser version is")) {
 				System.out.println("############################################################ \r\n"
@@ -101,7 +91,7 @@ public class RunGSSMailList {
 		Map<String, String> map;
 		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 		List<Map<String, String>> listMail;
-		List readStatus = Arrays.asList(new String[] {"已讀","已回覆","未讀"});
+		List<String> readStatus = Arrays.asList(new String[] {"已讀","已回覆","未讀"});
 		
 		/**
 		 *  取 昨、今 兩天的日期
@@ -114,6 +104,7 @@ public class RunGSSMailList {
 
 		// 取回mail的title
 		listMail = Selenium_Crawler.getMailContent(path, mapProp);
+		String[] inboxName = mapProp.get("inboxName").split(",");
 
 		for (Map<String, String> mailMap : listMail) {
 
@@ -141,7 +132,7 @@ public class RunGSSMailList {
 			 * 6: "今天" or "21/1/16六" 
 			 * 7: 上午10:22
 			 */
-			mailTitleArr = mailMap.get("title").replace(" ", "").split(",");
+			mailTitleArr = mailMap.get("title").replace(" ", "").replaceAll("\t", "").split(",");
 			// 有時Title會有逗號，會影響到陣列的總數
 			arrLen = mailTitleArr.length;
 
@@ -164,11 +155,14 @@ public class RunGSSMailList {
 							: Tools.getDate2String(
 									Tools.getString2Date(mailDate.substring(0, mailDate.length() - 1), "yy/M/d"),
 									"yyyyMMdd");
+			if("20220519 09:30".equals(mailDate + " " +mailTime)) {
+				System.out.println("wait");
+			}
 			// mail主旨
 			mailTitle = "";
 			sender = "";
 			for (int i = 1; i <= arrLen; i++) {
-				if (mailTitleArr[arrLen - i].equals("收件匣/1 NHIA/0 問題單")) {
+				if (mailTitleArr[arrLen - i].equals("收件匣/1 NHIA/" + inboxName[1])) {
 					mailTitle = mailTitleArr[arrLen - i - 1];
 				}
 				if (mailTitleArr[arrLen - i].equals("有附件")) {
@@ -180,88 +174,67 @@ public class RunGSSMailList {
 				}
 			}
 
-			map = new HashMap<String, String>();
-			map.put("MailDate", mailDate);
-			map.put("MailTime", mailTime);
+			map = new TreeMap<String, String>();
+//			map.put("MailDate", mailDate);
+//			map.put("MailTime", mailTime);
 			map.put("MailDateTime", mailDate + " " + mailTime);
-			map.put("MailTitle", mailTitle);
 			map.put("sender", sender);
+			map.put("MailTitle", mailTitle);
 			list.add(map);
 
-			System.out.println("======================== Start ========================");
-			System.out.println("MailDateTime 日期時間 => " + mailDate + " " + mailTime);
-			System.out.println("MailTitle 主旨 => " + mailTitle);
-			System.out.println("sender 寄件者 => " + sender);
-			System.out.println("======================== End ========================");
+//			System.out.println("======================== Start ========================");
+//			System.out.println("MailDateTime 日期時間 => " + mailDate + " " + mailTime);
+//			System.out.println("MailTitle 主旨 => " + mailTitle);
+//			System.out.println("sender 寄件者 => " + sender);
+//			System.out.println("======================== End ========================");
 		}
 		
 		return list;
 	}
 
 	/**
-	 * 將失敗的job列進 "待辦JOB" 頁籤
+	 * write
 	 * 
 	 * @throws ParseException
 	 */
-//	private static void writeSheet3(Workbook Workbook, List<Map<String, String>> list) throws ParseException {
-//		int setColNum = 0, lastRowNum = 0;
-//		Row row;
-//		Cell cell = null;
-//		Map<String, String> map;
-//		Sheet sheet3 = Workbook.getSheetAt(2);
-//		Sheet sheet4 = Workbook.getSheetAt(3);
-//		CellStyle cellStyle = Workbook.createCellStyle();
-//		lastRowNum = sheet3.getLastRowNum();
+	private static void write(Workbook Workbook, List<Map<String, String>> listAll) throws ParseException {
+		int setColNum = 0, rowNum = 0;
+		Row row;
+		Cell cell = null;
+		Sheet sheet = Workbook.getSheetAt(0);
+
+//		String MailTitle1 = "", MailTitle2 = "";
+//		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+//		Map<String, String> map2 ;
 //
-//		// 為了讓list能由後往前讀，故使用ListIterator
-//		ListIterator<TreeMap<String, String>> listIterator = listFforSheet3.listIterator();
-//		// 先讓迭代器的指標移到最尾筆
-//		while (listIterator.hasNext()) {
-//			System.out.println("待辦 job : " + listIterator.next());
-//		}
-//		// 再由後往前讀出來
-//		while (listIterator.hasPrevious()) {
-//			map = listIterator.previous();
-//			// 若出現不在當月日誌清單內的失敗job則跳過
-//			if(map.get("jobRSDate") == null) {
-//				continue;
-//			}
-//			JobMonth = map.get("jobRSDate").substring(0, 6);
-//			isPrint = true;
-//			// 判斷是否為當月的日誌
-//			if (JobMonth.equals(excelMonth)) {
-//				// 檢查此項目是否已被列過或者已移至歷史清單
-//				isPrint = chkSheetForJobF(sheet3, map) && chkSheetForJobF(sheet4, map);
-//
-//				if (isPrint) {
-//					lastRowNum++;
-//					sheet3.createRow(lastRowNum);
-//					row = sheet3.getRow(lastRowNum);
-//					String dateStr = map.get("jobRSDate").substring(0, 4) + "/"
-//							+ map.get("jobRSDate").substring(4, 6) + "/" + map.get("jobRSDate").substring(6);
-//					// 設定第一欄
-//					setColNum = 0;
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, dateStr);
-//					// 設定第二欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, map.get("jobSeq"));
-//					// 設定第三欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, map.get("jobEName"));
-//					// 設定第四欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, map.get("jobName"));
-//					// 設定第五欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, map.get("jobPeriod"));
-//					// 設定第六欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, "");
-//					// 設定第七欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4,
-//							map.get("RQ_rq_id") + " => " + map.get("RQ_run_flag"));
-//					// 設定第八欄
-//					Tools.setCellStyle(setColNum++, cell, cellStyle, row, sheet3, sheet4, "");
+//		for (Map<String, String> mapAll : listAll) {
+//			for (Map<String, String> map : list) {
+//				MailTitle1 = mailTitleTrim(mapAll.get("MailTitle"));
+//				MailTitle2 = mailTitleTrim(map.get("MailTitle"));
+//				if(MailTitle1.equals(MailTitle2)) {
+//					
 //				}
 //			}
 //		}
-//	}
+		
+		
+		for (Map<String, String> map : listAll) {
+			rowNum++;
+			sheet.createRow(rowNum);
+			row = sheet.getRow(rowNum);
+			// 設定第一欄
+			setColNum = 0;
+			Tools.setCellStyle(setColNum++, cell, row, map.get("MailDateTime"));
+			// 設定第二欄
+			Tools.setCellStyle(setColNum++, cell, row, map.get("sender"));
+			// 設定第三欄
+			Tools.setCellStyle(setColNum++, cell, row, map.get("MailTitle"));
+		}
+	}
 
+	private static String mailTitleTrim(String str) {
+		return str.toUpperCase().replace("RE:", "").replace("FW:", "").trim();
+	}
 	/**
 	 * 檢查此項目是否已被列過或者已移至歷史清單
 	 * 

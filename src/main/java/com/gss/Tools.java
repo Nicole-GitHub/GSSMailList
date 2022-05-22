@@ -84,12 +84,9 @@ public class Tools {
 		return 0;
 	}
 
-	protected static void setCellStyle(int setColNum, Cell cell, CellStyle cellStyle, Row row, Sheet sheet3,
-			Sheet sheet4, String desc) {
+	protected static void setCellStyle(int setColNum, Cell cell, Row row, String desc) {
 		cell = row.createCell(setColNum);
 		cell.setCellValue(desc);
-		cellStyle.cloneStyleFrom(sheet4.getRow(1).getCell(setColNum).getCellStyle());
-		cell.setCellStyle(cellStyle);
 	}
 
 	/**
