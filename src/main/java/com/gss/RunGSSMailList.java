@@ -201,22 +201,8 @@ public class RunGSSMailList {
 		int setColNum = 0, rowNum = 0;
 		Row row;
 		Cell cell = null;
-		Sheet sheet = Workbook.getSheetAt(0);
-
-//		String MailTitle1 = "", MailTitle2 = "";
-//		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-//		Map<String, String> map2 ;
-//
-//		for (Map<String, String> mapAll : listAll) {
-//			for (Map<String, String> map : list) {
-//				MailTitle1 = mailTitleTrim(mapAll.get("MailTitle"));
-//				MailTitle2 = mailTitleTrim(map.get("MailTitle"));
-//				if(MailTitle1.equals(MailTitle2)) {
-//					
-//				}
-//			}
-//		}
-		
+//		Workbook.removeSheetAt(0);
+		Sheet sheet = Workbook.createSheet(Tools.getToDay("yyyyMMdd"));
 		
 		for (Map<String, String> map : listAll) {
 			rowNum++;
