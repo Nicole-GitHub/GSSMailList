@@ -36,7 +36,7 @@ public class GSSMailListMain {
 					RunGSSMailList.run(path, mapProp);
 					done = true;
 				} catch (Exception e) {
-					System.out.println(new Date() + " ===> " + e.getMessage());
+					System.out.println(new Date() + " ===> " + e);
 					if ("getDailyReportExcel Error".equals(e.getMessage())
 							|| e.getMessage().contains("This version of ChromeDriver only supports Chrome version"))
 						done = true;
